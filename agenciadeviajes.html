@@ -1,33 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Viajes Global</title>
-        <link rel="stylesheet" href="style.css" />
-    </head>
-    <body>
-        <div id="panel">
-            <h1>Panel de Control - Viajes Global</h1>
-            <div id="saludoUsuario"></div> 
-          
-            <div class="card" id="infoPanel">
-                <h2>Información del Entorno</h2>
-                <p id="info">Haz clic en el botón para ver la información de la pantalla y la ventana.</p>
-                <button id="mostrarInfo">Mostrar información</button>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agencia de viajes - Viajes Global</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="banner-bienvenida">
+        <h1>Panel de Control Personalizado</h1>
+        <h2 id="textoSaludo" style="font-size: 1.8rem; margin-bottom: 0.5rem;"></h2>
+    </div>
+
+    <div class="contenedor-cuadricula">
+        <div class="tarjeta">
+            <div class="cabecera-tarjeta">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Tu Ubicación</h3>
             </div>
-            
-           
-            <div class="card" id="colorPanel">
-                <h2>Preferencia de Color de Fondo</h2>
-                <button id="colorFondoButton">Elegir color de fondo</button>
-            </div>
-            
-            <div class="card" id="resetPanel">
-                <h2>Restablecer Configuración</h2>
-                <button id="resetButton">Restablecer configuración</button>
+            <div id="infoUbicacion">
+                <button onclick="obtenerUbicacion()">
+                    <i class="fas fa-location-arrow"></i>
+                    Obtener Ubicación
+                </button>
+                <div class="info-ubicacion" id="detallesUbicacion"></div>
             </div>
         </div>
-        <script src="panel.js"></script>
-    </body>
+
+        <div class="tarjeta">
+            <div class="cabecera-tarjeta">
+                <i class="fas fa-desktop"></i>
+                <h3>Información del Sistema</h3>
+            </div>
+            <div id="infoSistema"></div>
+        </div>
+
+        <div class="tarjeta">
+            <div class="cabecera-tarjeta">
+                <i class="fas fa-paint-brush"></i>
+                <h3>Personalización</h3>
+            </div>
+            <div class="contenedor-selector-color">
+                <label for="colorFondo">Color de fondo:</label>
+                <input type="color" id="colorFondo">
+            </div>
+        </div>
+
+        <div class="tarjeta">
+            <div class="cabecera-tarjeta">
+                <i class="fas fa-clock"></i>
+                <h3>Última Visita</h3>
+            </div>
+            <div id="ultimaVisita"></div>
+        </div>
+    </div>
+
+    <div class="tarjeta">
+        <div class="cabecera-tarjeta">
+            <i class="fas fa-cog"></i>
+            <h3>Configuración</h3>
+        </div>
+        <button onclick="restablecerConfiguracion()">
+            <i class="fas fa-redo"></i>
+            Restablecer Configuración
+        </button>
+    </div>
+
+    <script src="panel.js"></script>
+
+</body>
+
 </html>

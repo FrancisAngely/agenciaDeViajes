@@ -1,88 +1,182 @@
-// Función para mostrar información del entorno del usuario
-function mostrarInfoUsuario() {
-    const infoDiv = document.getElementById('info');
-    const userAgent = navigator.userAgent;
-    const screenResolution = `${window.screen.width} x ${window.screen.height}`;
-    const language = navigator.language || navigator.userLanguage;
-    const currentURL = window.location.href;
+function obtenerNombreUsuario() {
+    let nombreUsuario = sessionStorage.getItem('nombreUsuario');
+    if (!nombreUsuario) {
+        nombreUsuario = prompt('Por favor, ingresa tu nombre:');
+        if (nombreUsuario) {
+            sessionStorage.setItem('nombreUsuario', nombreUsuario);
+        }
+    }
+    return nombreUsuario;
+}
 
-    infoDiv.innerHTML = `
-        <h2>Información del Usuario</h2>
-        <p><strong>Navegador:</strong> ${userAgent}</p>
-        <p><strong>Resolución de Pantalla:</strong> ${screenResolution}</p>
-        <p><strong>Idioma:</strong> ${language}</p>
-        <p><strong>URL Actual:</strong> ${currentURL}</p>
+function mostrarInfoSistema() {
+    const infoSistema = document.getElementById('infoSistema');
+    infoSistema.innerHTML = `
+        <div class="elemento-info">
+            <i class="fas fa-expand"></i>
+            <span>Resolución: ${window.screen.width}x${window.screen.height}</span>
+        </div>
+        <div class="elemento-info">
+            <i class="fas fa-browser"></i>
+            <span>Navegador: ${navigator.userAgent.split(')')[0]})</span>
+        </div>
+        <div class="elemento-info">
+            <i class="fas fa-language"></i>
+            <span>Idioma: ${navigator.language}</span>
+        </div>
+        <div class="elemento-info">
+            <i class="fas fa-link"></i>
+            <span style="font-size:13px;">URL: ${window.location.href}</span>
+        </div>
     `;
 }
 
-// Función para solicitar el nombre del usuario
-function solicitarNombreUsuario() {
-    const nombre = sessionStorage.getItem('nombreUsuario');
-    if (!nombre) {
-        const nombreUsuario = prompt("Por favor, ingresa tu nombre:");
-        if (nombreUsuario) {
-            sessionStorage.setItem('nombreUsuario', nombreUsuario);
-            mostrarSaludo(nombreUsuario);
-        }
-    } else {
-        mostrarSaludo(nombre);
-    }
-}
-
-// Función para mostrar saludo personalizado
-function mostrarSaludo(nombre) {
-    const saludoDiv = document.getElementById('saludoUsuario');
-    saludoDiv.innerHTML = `<h2>¡Bienvenido, ${nombre}!</h2>`;
-}
-
-// Función para elegir color de fondo
-function elegirColorFondo() {
-    const color = prompt("Elige un color de fondo (nombre o código hexadecimal):");
-    if (color) {
-        document.body.style.backgroundColor = color;
-        localStorage.setItem('colorFondo', color);
-    }
-}
-
-// Función para aplicar el color de fondo guardado
-function aplicarColorFondoGuardado() {
+function manejarColorFondo() {
+    const selectorColor = document.getElementById('colorFondo');
     const colorGuardado = localStorage.getItem('colorFondo');
+
     if (colorGuardado) {
         document.body.style.backgroundColor = colorGuardado;
+        selectorColor.value = colorGuardado;
+    }
+
+    selectorColor.addEventListener('change', (e) => {
+        const nuevoColor = e.target.value;
+        document.body.style.backgroundColor = nuevoColor;
+        localStorage.setItem('colorFondo', nuevoColor);
+    });
+}
+
+function manejarUltimaVisita() {
+    const ahora = new Date().toLocaleString();
+    establecerCookie('ultimaVisita', ahora, 30);
+    const ultimaVisita = obtenerCookie('ultimaVisita');
+
+    if (ultimaVisita) {
+        document.getElementById('ultimaVisita').innerHTML = `
+            <div class="elemento-info">
+                <i class="fas fa-history"></i>
+                <span>Última visita: ${ultimaVisita}</span>
+            </div>
+        `;
     }
 }
 
-// Función para registrar la última visita
-function registrarUltimaVisita() {
-    const ultimaVisita = document.cookie.split('; ').find(row => row.startsWith('ultimaVisita='));
-    const fechaActual = new Date().toLocaleString();
-    
-    if (!ultimaVisita) {
-        document.cookie = `ultimaVisita=${fechaActual}; path=/; max-age=${60 * 60 * 24 * 30}`; // 30 días
-    } else {
-        const ultimaVisitaFecha = ultimaVisita.split('=')[1];
-        alert(`Tu última visita fue el: ${ultimaVisitaFecha}`);
-        document.cookie = `ultimaVisita=${fechaActual}; path=/; max-age=${60 * 60 * 24 * 30}`; // Actualiza la fecha
-    }
+function establecerCookie(nombre, valor, dias) {
+    const fecha = new Date();
+    fecha.setTime(fecha.getTime() + (dias * 24 * 60 * 60 * 1000));
+    const expira = `expires=${fecha.toUTCString()}`;
+    document.cookie = `${nombre}=${valor};${expira};path=/`;
 }
 
-// Función para restablecer la configuración
+function obtenerCookie(nombre) {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [nombreCookie, valorCookie] = cookie.split('=');
+        if (nombreCookie.trim() === nombre) {
+            return valorCookie;
+        }
+    }
+    return null;
+}
+
 function restablecerConfiguracion() {
-    sessionStorage.clear();
     localStorage.clear();
-    document.cookie = "ultimaVisita=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    alert("Configuración restablecida.");
-    location.reload(); // Recargar la página para aplicar cambios
+    sessionStorage.clear();
+    document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    location.reload();
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', () => {
-    mostrarInfoUsuario();
-    solicitarNombreUsuario();
-    aplicarColorFondoGuardado();
-    registrarUltimaVisita();
+function obtenerUbicacion() {
+    const detallesUbicacion = document.getElementById('detallesUbicacion');
 
-    // Asignar evento al botón de restablecer
-    const resetButton = document.getElementById('resetButton');
-    resetButton.addEventListener('click', restablecerConfiguracion);
-});
+    if (!navigator.geolocation) {
+        detallesUbicacion.innerHTML = `
+            <div class="elemento-info">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Tu navegador no soporta geolocalización</span>
+            </div>`;
+        return;
+    }
+
+    detallesUbicacion.innerHTML = `
+        <div class="elemento-info">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Obteniendo ubicación...</span>
+        </div>`;
+
+    navigator.geolocation.getCurrentPosition(
+        (posicion) => {
+            const latitud = posicion.coords.latitude;
+            const longitud = posicion.coords.longitude;
+            const precision = posicion.coords.accuracy;
+
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitud}&lon=${longitud}&format=json`)
+                .then(response => response.json())
+                .then(datos => {
+                    detallesUbicacion.innerHTML = `
+                        <div class="elemento-info">
+                            <i class="fas fa-map-pin"></i>
+                            <span>Ubicación: ${datos.display_name}</span>
+                        </div>
+                        <div class="elemento-info">
+                            <i class="fas fa-compass"></i>
+                            <span>Latitud: ${latitud.toFixed(4)}</span>
+                        </div>
+                        <div class="elemento-info">
+                            <i class="fas fa-compass"></i>
+                            <span>Longitud: ${longitud.toFixed(4)}</span>
+                        </div>
+                        <div class="elemento-info">
+                            <i class="fas fa-bullseye"></i>
+                            <span>Precisión: ${Math.round(precision)} metros</span>
+                        </div>`;
+                })
+                .catch(error => {
+                    detallesUbicacion.innerHTML += `
+                        <div class="elemento-info">
+                            <i class="fas fa-map-pin"></i>
+                            <span>Lat: ${latitud.toFixed(4)}, Lon: ${longitud.toFixed(4)}</span>
+                        </div>`;
+                });
+        },
+        (error) => {
+            let mensajeError;
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    mensajeError = "Usuario denegó la petición de geolocalización.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    mensajeError = "Información de ubicación no disponible.";
+                    break;
+                case error.TIMEOUT:
+                    mensajeError = "Tiempo de espera agotado para obtener la ubicación.";
+                    break;
+                default:
+                    mensajeError = "Error desconocido al obtener la ubicación.";
+            }
+            detallesUbicacion.innerHTML = `
+                <div class="elemento-info">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>${mensajeError}</span>
+                </div>`;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        }
+    );
+}
+
+window.onload = function() {
+    const nombreUsuario = obtenerNombreUsuario();
+    if (nombreUsuario) {
+        document.getElementById('textoSaludo').textContent = `¡Hola, ${nombreUsuario}!`;
+    }
+    mostrarInfoSistema();
+    manejarColorFondo();
+    manejarUltimaVisita();
+};
